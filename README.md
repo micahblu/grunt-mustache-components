@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # grunt-mustache-components
 
 > Extends mustache ttemplating with handlebars like components
@@ -27,11 +27,16 @@ In your project's Gruntfile, add a section named `mustache_components` to the da
 grunt.initConfig({
   mustache_components: {
     options: {
-      // Task-specific options go here.
+      componentsDir: "src/templates/components/", 
+      partialsDir: "src/templates/partials/",
+      contextDir: "src/templates/data/", // Location of JSON files to provide template context
+      ext: '.html', // Save as extension
+      context: {} // Manually provide context
     },
     your_target: {
-      // Target-specific file lists and/or options go here.
-    },
+      src: ['src/**/*.mustache'],
+      dest: 'dist/'
+    }
   },
 });
 ```
@@ -87,10 +92,4 @@ grunt.initConfig({
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
-=======
-grunt-mustache-components
-=========================
-
-Extends mustache with Ember like components
->>>>>>> b0715179521eb70d6484ea9aaf8640c36c1dc242
+ - 0.1.0

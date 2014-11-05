@@ -20,13 +20,15 @@ module.exports = function(grunt) {
     var options = this.options(),
         context = options.context,
         contextDir = options.contextDir,
+        contextFile = '',
         ext ='',
         filename,
         contents,
         dest = this.data.dest,
-        src = this.data.src,
-        regex,
-        ignoreDirs = [options.componentsDir, options.partialsDir, options.contextDir];
+        src = this.data.src[0].replace(/\*.+/g, ''),
+        ignoreDirs = [options.componentsDir, options.partialsDir, options.contextDir],
+        ignoreDirRegex = new RegExp(ignoreDirs.join("|").replace(new RegExp(src, "g"), ''));
+
 
     var srcdirs, omit = '', template, write = true, file;
     
@@ -41,12 +43,12 @@ module.exports = function(grunt) {
       filepair.src.forEach(function(template){
 
         ext = template.substr(template.lastIndexOf('.'), template.length);
-        filename = template.substr(template.lastIndexOf('/') + 1, template.length).replace(ext, "");
-        
+        contextFile = template.replace(omit, '').replace(ignoreDirRegex, '').replace(ext, '.json').replace(/\//g, '.');
+
         // check for a context json file, if present,
         // extend the context object with it
-        if(grunt.file.exists(contextDir + filename + ".json")){
-            context = extend(context, grunt.file.readJSON(contextDir + filename + ".json"));
+        if(grunt.file.exists(contextDir + contextFile)){
+            context = extend(context, grunt.file.readJSON(contextDir + contextFile));
         }
 
         // grab current contents of template to string
@@ -60,7 +62,7 @@ module.exports = function(grunt) {
 
         // Render template content with context
         contents = mustache.render(contents, context);
-
+        
         // All good write new file to dest
         ignoreDirs.forEach(function(dir){
           if(template.indexOf(dir) > -1){
@@ -68,12 +70,13 @@ module.exports = function(grunt) {
             return;
           } 
         });
-
+        
         if(write){
           file = template.replace(omit, dest).replace(ext, options.ext);
-          console.log('writing: ' + file);
+          console.log("wrote " + file);
           grunt.file.write(file, contents);
         }
+        
       });
       omit = '';
       write = true;

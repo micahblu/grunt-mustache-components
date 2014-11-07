@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Micah Blu
  * Licensed under the MIT license.
  * 
- * @version 0.0.1
+ * @version 0.0.3
  */
 
 'use strict';
@@ -45,8 +45,7 @@ module.exports = function(grunt) {
         ext = template.substr(template.lastIndexOf('.'), template.length);
         contextFile = template.replace(omit, '').replace(ignoreDirRegex, '').replace(ext, '.json').replace(/\//g, '.');
 
-        // check for a context json file, if present,
-        // extend the context object with it
+        // check for a context json file, if present, extend the context object with it
         if(grunt.file.exists(contextDir + contextFile)){
             context = extend(context, grunt.file.readJSON(contextDir + contextFile));
         }
@@ -58,7 +57,7 @@ module.exports = function(grunt) {
         contents = partialsTransclusion(contents, ext, options.partialsDir);
         
         // Transclude components
-        contents = componentsTransclusion(contents, ext, options.componentsDir);
+        contents = componentsTransclusion(contents, context, ext, options.componentsDir);
 
         // Render template content with context
         contents = mustache.render(contents, context);
@@ -72,8 +71,8 @@ module.exports = function(grunt) {
         });
         
         if(write){
-          file = template.replace(omit, dest).replace(ext, options.ext);
-          console.log("wrote " + file);
+          file = template.replace(omit, dest).replace(ext, (options.ext || '.html'));
+          //console.log("wrote " + file);
           grunt.file.write(file, contents);
         }
         
@@ -111,45 +110,66 @@ module.exports = function(grunt) {
       return template;
     }
 
-    function componentsTransclusion(template, ext, componentsDir){
+    function componentsTransclusion(template, context, ext, componentsDir){
 
       var components,
           componentName,
           component,
-          componentStr,
+          componentName = '',
           componentContext = {},
-          componentTokens = '',
-          nvpair = [];
+          varTokens = [],
+          strTokens = [],
+          intTokens = [],
+          pair = [],
+          value = '';
 
-      while(components = template.match(/\{\{\^ (.+?)\}\}/g)){
+      if(!context){
+        return template;
+      }
+      while(components = template.match(/\{\{\^ (.+)\}\}/g)){
 
         for(var i=0, j=components.length; i<j; i++){
 
-          // temporarily replace empty spaces within attribute value strings with a '&nbsp;'
-          componentStr = components[i].replace(/(['"].+?)\s(.+?['"])/, '$1&nbsp;$2');
+          componentName = components[i].match(/\{\{\^\s(\w+)/)[1];
 
-          // separate component string by empty spaces into tokens 
-          componentTokens = componentStr.match(/\{\{\^ (.+?)\}\}/)[1].split(" ");
+          strTokens = components[i].match(/\w+=(['"][^'"]+['"])/g);
+          intTokens = components[i].match(/\w+=([0-9]+)/g);
+          varTokens = components[i].match(/\w+=([^'"0-9\s\}]+)/g);
 
-          component = grunt.file.read(componentsDir + componentTokens[0]  + ext);
+          component = grunt.file.read(componentsDir + componentName + ext);
+
+         // console.log(component);
+          if(strTokens) {
+            strTokens.forEach(function(nv){
+              pair = nv.split('=');
+              componentContext[pair[0]] = pair[1].replace(/['"]/g, '');
+            });
+          }
+
+          if(intTokens) {
+            intTokens.forEach(function(nv){
+              pair = nv.split('=');
+              componentContext[pair[0]] = pair[1];
+            });
+          }
+
+          if(varTokens) {
+            varTokens.forEach(function(nv){
+              pair = nv.split('=');
+              
+              if(pair[1].match(/\./g)){
+                value = context;
+                pair[1].split('.').forEach(function(prop){
+                  value = value[prop];
+                });
+              }else{
+                value = context[pair[1]];
+              }
+              componentContext[pair[0]] = value;
+            }); 
+          }
           
-          componentTokens = componentTokens.splice(1);
-          
-          componentTokens.forEach(function(token){
-            nvpair = token.split("=");
-            // If token is encapsulated with ['"] then it is a string literal, 
-            // other wise map value from passed context
-            if(nvpair[1].match(/['"]/)){
-              nvpair[1] = nvpair[1].replace(/&nbsp;/g, " ");
-
-              componentContext[nvpair[0]] = nvpair[1].replace(/['"]/g, "");
-            }else{
-              componentContext[nvpair[0]] = context[nvpair[1]];
-            }
-          });
-
           component = mustache.render(component, componentContext);
-
           template = template.replace(components[i], component);
         }
       }

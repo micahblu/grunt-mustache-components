@@ -1,7 +1,7 @@
 {
   "name": "grunt-mustache-components",
-  "description": "Extends mustache templating with partial like components that accept context",
-  "version": "0.0.3",
+  "description": "Extends mustache ttemplating with handlebars like components",
+  "version": "0.1.0",
   "homepage": "https://github.com/micahblu/grunt-mustache-components",
   "author": {
     "name": "Micah Blu",
@@ -38,5 +38,27 @@
   },
   "keywords": [
     "gruntplugin"
-  ]
+  ],
+  "gitHead": "f4058918d2678e5c6c2b5866e123d8dacaaf632e",
+  "_id": "grunt-mustache-components@0.1.0",
+  "_shasum": "cc80295e0105964075fd5d64ddecdf5e09d910ea",
+  "_from": "grunt-mustache-components@~0.1.0",
+  "_npmVersion": "1.4.23",
+  "_npmUser": {
+    "name": "micahblu",
+    "email": "micahblu@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "micahblu",
+      "email": "micahblu@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "cc80295e0105964075fd5d64ddecdf5e09d910ea",
+    "tarball": "http://registry.npmjs.org/grunt-mustache-components/-/grunt-mustache-components-0.1.0.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/grunt-mustache-components/-/grunt-mustache-components-0.1.0.tgz",
+  "readme": "ERROR: No README data found!"
 }

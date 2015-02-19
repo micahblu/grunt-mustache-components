@@ -1,7 +1,7 @@
 {
   "name": "grunt-mustache-components",
   "description": "Extends mustache ttemplating with handlebars like components",
-  "version": "0.1.0",
+  "version": "0.0.4",
   "homepage": "https://github.com/micahblu/grunt-mustache-components",
   "author": {
     "name": "Micah Blu",
